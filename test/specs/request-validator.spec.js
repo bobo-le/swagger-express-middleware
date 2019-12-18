@@ -84,6 +84,24 @@ for (let spec of specs) {
         done();
       });
     });
+    
+     it("request should pass if the validation is disabled", (done) => {
+      swagger(api, (err, middleware) => {
+        express = helper.express(middleware.validateRequest(false));
+
+        helper.supertest(express)
+          .get("/api/pets")
+          .end(helper.checkSpyResults(done));
+
+        express.use("/api/pets", helper.spy((err, req, res, next) => {
+          assert(false, err);
+        }));
+
+        express.get("/api/pets", helper.spy(() => {
+          assert(true);
+        }));
+      });
+    });
 
     describe("http500", () => {
       it("should throw an error if a parsing error occurs", (done) => {
